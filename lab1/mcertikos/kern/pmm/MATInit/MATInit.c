@@ -22,6 +22,14 @@ void pmem_init(unsigned int mbi_addr)
     unsigned int nps;
 
     // TODO: Define your local variables here.
+    unsigned int tableNRow;
+    unsigned int startAddr;
+    unsigned int length;
+    unsigned int highestAddr;
+    unsigned int pageIndex;
+    unsigned int permition;
+    unsigned int i;
+
 
     // Calls the lower layer initialization primitive.
     // The parameter mbi_addr should not be used in the further code.
@@ -34,6 +42,8 @@ void pmem_init(unsigned int mbi_addr)
      *       divided by the page size.
      */
     // TODO
+
+    
 
     set_nps(nps);  // Setting the value computed above to NUM_PAGES.
 

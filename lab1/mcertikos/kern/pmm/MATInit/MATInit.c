@@ -42,8 +42,18 @@ void pmem_init(unsigned int mbi_addr)
      *       divided by the page size.
      */
     // TODO
+    tableNRow = get_size();
+    if(tableNRow == 0){
+        nps = 0;
+    }
+    else{
+        startAddr = get_mms(tableNRow - 1);
+        length = get_mml(tableNRow - 1);
+        highestAddr = startAddr + length - 1;
 
-    
+        nps = (highestAddr + 1) / PAGESIZE;
+    }
+
 
     set_nps(nps);  // Setting the value computed above to NUM_PAGES.
 
@@ -71,4 +81,47 @@ void pmem_init(unsigned int mbi_addr)
      *    so in that case, you should consider those pages as unavailable.
      */
     // TODO
+
+    for(i = 0; i < VM_USERLO_PI; i++){
+        at_set_perm(i, 1);
+    }
+    for(i = VM_USERHI_PI; i < nps; i++){
+        at_set_perm(i, 1);
+    }
+    for(i = VM_USERLO_PI; i < VM_USERHI_PI; i++){
+        at_set_perm(i, 0);
+    }
+
+    for(i=0; i<tableNRow; i++){
+        startAddr = get_mms(i);
+        length = get_mml(i);
+        permition = is_usable(i);
+
+        if(permition = 1){
+            permition = 2;
+        }
+        else{
+            permition = 0;
+        }
+
+        pageIndex = startAddr / PAGESIZE;
+
+        if(pageIndex * PAGESIZE < startAddr){
+            pageIndex++;
+        }
+
+        while((pageIndex + 1) * PAGESIZE <= startAddr + length){
+            if(pageIndex < VM_USERLO_PI){
+                pageIndex++;
+                continue;
+            }
+
+            if(pageIndex >= VM_USERHI_PI){
+                break;
+            }
+
+            at_set_perm(pageIndex, permition);
+            pageIndex++;
+        }
+    }
 }

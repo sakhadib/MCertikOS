@@ -1,0 +1,405 @@
+\documentclass{beamer}
+
+% Theme choice (optional)
+\usetheme{Singapore}
+
+% Background colors
+%\definecolor{primaryBG}{RGB}{22,66,60} % Dark green for main background
+%\definecolor{secondaryBG}{RGB}{106,156,137} % Medium green for title and headers
+%\definecolor{slideBG}{RGB}{233,239,236} % Light color for slide background
+
+% Foreground colors
+%\definecolor{primaryText}{RGB}{24,28,20} % Dark greenish-black for main text
+%\definecolor{secondaryText}{RGB}{60,61,55} % Dark grayish for secondary text
+%\definecolor{highlightText}{RGB}{105,117,101} % Muted green for highlights
+%\definecolor{titleText}{RGB}{236,223,204} % Light beige for title and header text
+
+% Apply background colors
+%\setbeamercolor{background canvas}{bg=slideBG} % Light background for slides
+%\setbeamercolor{frametitle}{bg=secondaryBG, fg=titleText} % Title background with light title text
+%\setbeamercolor{section in head/foot}{bg=secondaryBG, fg=titleText} % Section header background
+
+% Apply foreground colors
+%\setbeamercolor{normal text}{fg=primaryText} % Main text color
+%\setbeamercolor{author in head/foot}{bg=primaryBG, fg=titleText} % Author in footer
+%\setbeamercolor{title in head/foot}{bg=primaryBG, fg=titleText} % Title in footer
+%\setbeamercolor{date in head/foot}{bg=primaryBG, fg=titleText} % Date in footer
+
+% Package for including images
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+
+%for code styling ---------------------------------------
+\definecolor{mBlue}{rgb}{0,0.4,0.7}
+\definecolor{mGray}{rgb}{0.5,0.5,0.5}
+\definecolor{mPurple}{rgb}{0.58,0,0.82}
+% \definecolor{backgroundColour}{HTML}{e6f0ee}
+\definecolor{backgroundColour}{HTML}{ffffff}
+\definecolor{mAdib}{rgb}{0,0.8,0}
+
+
+\lstdefinestyle{code}{
+	backgroundcolor=\color{backgroundColour},   
+	commentstyle=\color{mGray},
+	keywordstyle=\color{mBlue}\bfseries,
+	numberstyle=\color{mGray},
+	stringstyle=\color{mPurple},
+	basicstyle=\ttfamily\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,
+	keepspaces=true,                                            
+	morekeywords={Input, Output,},
+	showspaces=false,                
+	showstringspaces=false,
+	xleftmargin=5pt,
+	numbers=left,
+	numbersep=12pt,
+	showtabs=false,                  
+	tabsize=4,
+	% frame=single,
+	language=c
+}
+
+
+% Title, author, and other details
+\title{\textbf{Operating Systems Lab}}
+\subtitle{Lab - 1: Bootloader \& Physical Memory Management}
+
+\author{\textbf{Adib Sakhawat} \& \textbf{Yasir Raiyan}}
+\institute[ ]{ID: 210042106 \& 210042152\\Software Engineering\\Dept. of Computer Science and Engineering\\Islamic University of Technology}
+\date{\today}
+
+% Custom footer setup
+\setbeamertemplate{footline}{
+	\leavevmode%
+	\hbox{%
+		\begin{beamercolorbox}[wd=.1\paperwidth,ht=2.5ex,dp=1.125ex]{author in head/foot}%
+			% Blank space on the left
+		\end{beamercolorbox}%
+		
+		\begin{beamercolorbox}[wd=.3\paperwidth,ht=2.5ex,dp=1.125ex,left]{author in head/foot}%
+			\usebeamerfont{author in head/foot} \insertshortauthor % Name
+		\end{beamercolorbox}%
+		
+		\begin{beamercolorbox}[wd=.3\paperwidth,ht=2.5ex,dp=1.125ex,left]{author in head/foot}%
+			\usebeamerfont{title in head/foot} \insertshorttitle % Name
+		\end{beamercolorbox}%
+
+		
+		\begin{beamercolorbox}[wd=.2\paperwidth,ht=2.5ex,dp=1.125ex,right]{date in head/foot}%
+			\usebeamerfont{date in head/foot} \insertframenumber/\inserttotalframenumber % Page number (right-aligned)
+		\end{beamercolorbox}%
+		
+		\begin{beamercolorbox}[wd=.1\paperwidth,ht=2.5ex,dp=1.125ex]{author in head/foot}%
+			% Blank space on the right
+		\end{beamercolorbox}%
+	}%
+	\vskip0pt%
+}
+
+\begin{document}
+	
+	% Title slide
+	\begin{frame}
+		\titlepage
+	\end{frame}
+	
+
+	% Slide 1: Introduction
+	\section{Bootloader}
+	\begin{frame}
+		\frametitle{What is a Bootloader?}
+		\begin{itemize}
+			\item A small program that runs when a computer starts.
+			\item Loads the operating system into memory.
+			\item Begins the execution of the OS.
+			\item Essential for the OS to function.
+		\end{itemize}
+	\end{frame}
+	
+	\section{Physical Memory Management}		
+	% Slide 1: Introduction to Physical Memory Management
+	\begin{frame}
+		\frametitle{Introduction to Physical Memory Management}
+		\begin{itemize}
+			\item \textbf{Physical Memory:} The hardware memory (RAM) used by programs.
+			\item \textbf{Role of OS:} Manages memory allocation and ensures efficient use.
+			\item \textbf{Allocation:} Decides how memory is divided and organized.
+		\end{itemize}
+	\end{frame}
+	
+	% Slide 2: Memory Allocation
+	\begin{frame}
+		\frametitle{Memory Allocation}
+		\begin{itemize}
+			\item \textbf{Fixed Partitioning:} Predefined memory blocks, simple but inefficient.
+			\item \textbf{Dynamic Partitioning:} Flexible memory allocation based on process size.
+			\item \textbf{Contiguous Allocation:} Memory blocks assigned sequentially.
+			\item \textbf{Non-contiguous Allocation:} Allows memory blocks scattered across RAM.
+		\end{itemize}
+	\end{frame}
+	
+	% Slide 3: Paging
+	\begin{frame}
+		\frametitle{Paging}
+		\begin{itemize}
+			\item \textbf{Pages:} Memory divided into fixed-size pages.
+			\item \textbf{Page Table:} Maps logical pages to physical frames.
+			\item \textbf{Page Frames:} Fixed-size blocks in physical memory.
+		\end{itemize}
+	\end{frame}
+	
+	% Slide 4: Segmentation
+	\begin{frame}
+		\frametitle{Segmentation}
+		\begin{itemize}
+			\item \textbf{Segments:} Memory divided based on logical divisions (code, data, stack).
+			\item \textbf{Segment Table:} Maps segments to physical addresses.
+			\item \textbf{Logical vs. Physical Address:} Logical address is used by the program, physical address by hardware.
+		\end{itemize}
+	\end{frame}
+	
+	% Slide 5: Memory Protection and Fragmentation
+	\begin{frame}
+		\frametitle{Memory Protection and Fragmentation}
+		\begin{itemize}
+			\item \textbf{Memory Protection:} Prevents one process from accessing another's memory.
+			\item \textbf{Fragmentation:} 
+			\begin{itemize}
+				\item \textbf{Internal Fragmentation:} Unused memory within allocated space.
+				\item \textbf{External Fragmentation:} Free memory scattered across.
+			\end{itemize}
+			\item \textbf{Solutions:} Compaction, Paging, and Segmentation.
+		\end{itemize}
+	\end{frame}
+	
+		
+		
+	\section{MATIntro Layer}
+	\begin{frame}
+		\frametitle{MATIntro Layer: Memory Management Overview}
+		
+		\begin{itemize}
+			\item The code defines a Memory Allocation Table (MAT) to manage physical memory pages.
+			\item Pages are represented as 4KB units, and permissions are assigned to each page.
+		\end{itemize}
+			
+		
+	\end{frame}
+	
+	
+	\begin{frame}
+		\frametitle{Key Components:}
+		
+		\begin{itemize}
+			\item \texttt{NUM\_PAGES}: Number of physical pages available in the system.
+			\item \texttt{struct ATStruct}: Represents each page with permission and allocation status.
+			\item \texttt{AT[1 << 20]}: Array storing information for each physical page (up to 4GB memory)
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Core Functions:}
+		
+		\begin{itemize}
+			\item \texttt{get\_nps(), set\_nps()}: Get/set number of available pages.
+			\item \texttt{at\_is\_norm()}: Checks if a page has normal permission.
+			\item \texttt{at\_set\_perm()}: Sets page permission and marks it as unallocated.
+			\item \texttt{at\_is\_allocated()}: Checks if a page is allocated.
+			\item \texttt{at\_set\_allocated()}: Sets allocation status of a page.
+		\end{itemize}
+		
+	\end{frame}
+	
+	
+	\section{MATInit Layer}
+	
+	% Slide 1: Introduction to pmem_init()
+	\begin{frame}
+		\frametitle{Introduction to \texttt{pmem\_init()}}
+		\begin{itemize}
+			\item Initializes physical memory and allocation table (AT).
+			\item Configures permissions for memory pages based on the memory map.
+			\item Pages are 4KB in size.
+			\item \texttt{VM\_USERLO/VM\_USERHI}: Define user-space memory boundaries.
+		\end{itemize}
+	\end{frame}
+	
+	% Slide 2: Calculating Physical Memory Pages
+	\begin{frame}
+		\frametitle{Calculating Physical Memory Pages}
+		\begin{itemize}
+			\item \texttt{nps}: Total number of physical pages.
+			\item Pages calculated as: \texttt{nps = (highestAddr + 1) / PAGESIZE}.
+			\item Fetch memory map rows with \texttt{get\_size()}.
+			\item Determine highest address using \texttt{get\_mms()} and \texttt{get\_mml()}.
+		\end{itemize}
+	\end{frame}
+	
+	% Slide 3: Initializing the Physical Allocation Table
+	\begin{frame}
+		\frametitle{Initializing the Physical Allocation Table}
+		\begin{itemize}
+			\item \textbf{Kernel-reserved addresses:}
+			\begin{itemize}
+				\item Pages < \texttt{VM\_USERLO\_PI} or >= \texttt{VM\_USERHI\_PI} are reserved.
+				\item Set permission to 1 for these pages.
+			\end{itemize}
+			\item \textbf{User-space pages:}
+			\begin{itemize}
+				\item Pages within [\texttt{VM\_USERLO}, \texttt{VM\_USERHI}] can be used if marked available.
+				\item Permissions are based on memory map.
+			\end{itemize}
+		\end{itemize}
+	\end{frame}
+	
+	% Slide 4: Kernel-Reserved Pages
+	\begin{frame}
+		\frametitle{Kernel-Reserved Pages}
+		\begin{itemize}
+			\item $Pages < \texttt{VM\_USERLO\_PI}$ and $Pages >= \texttt{VM\_USERHI\_PI}$ are reserved.
+			\item Set permission to 1.
+		\end{itemize}
+		
+	\end{frame}
+	
+	% Slide 5: User-Space Page Initialization
+	\begin{frame}
+		\frametitle{User-Space Page Initialization}
+		\begin{itemize}
+			\item Pages within [\texttt{VM\_USERLO}, \texttt{VM\_USERHI}] are checked.
+			\item Permissions set based on memory map.
+			\item Pages are marked as:
+			\begin{itemize}
+				\item \textbf{2}: Usable.
+				\item \textbf{0}: Unavailable (partial pages considered unavailable).
+			\end{itemize}
+		\end{itemize}
+	\end{frame}
+	
+	
+	% Slide 6: Final Page Permission Setup
+	\begin{frame}
+		\frametitle{Final Page Permission Setup}
+		\begin{itemize}
+			\item Loop through the memory map.
+			\item Set permission based on usability:
+			\begin{itemize}
+				\item \texttt{2}: Usable pages.
+				\item \texttt{0}: Unavailable or partially usable pages.
+			\end{itemize}
+		\end{itemize}
+		
+		
+	\end{frame}
+	
+	
+	
+	\section{MATOp Layer}
+	\begin{frame}
+		\frametitle{Introduction to Page Allocation}
+		\begin{itemize}
+			\item \textbf{Page Allocation}: Managing physical memory by allocating and freeing pages.
+			\item \textbf{Key Functions}:
+			\begin{itemize}
+				\item \texttt{palloc()}: Allocates a physical page.
+				\item \texttt{pfree()}: Frees an allocated page.
+			\end{itemize}
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Understanding Physical Pages}
+		\begin{itemize}
+			\item \textbf{Physical Page Size}: Defined as 4KB (\texttt{PAGESIZE = 4096}).
+			\item \textbf{User Space Limits}:
+			\begin{itemize}
+				\item \texttt{VM\_USERLO}: Start of user-space memory (0x40000000).
+				\item \texttt{VM\_USERHI}: End of user-space memory (0xF0000000).
+			\end{itemize}
+			\item \textbf{Page Index Range}: 
+			\begin{itemize}
+				\item \texttt{VM\_USERLO\_PI} to \texttt{VM\_USERHI\_PI} determines valid page indices.
+			\end{itemize}
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Overview of \texttt{palloc()}}
+		\begin{itemize}
+			\item \textbf{Purpose}: Allocate a physical page.
+			\item \textbf{Process}:
+			\begin{enumerate}
+				\item \textbf{Check Availability}: Ensure pages are available in the allocation table (AT).
+				\item \textbf{Scan for Unallocated Pages}: Look for the first unallocated page with normal permissions.
+				\item \textbf{Mark as Allocated}: If found, mark the page and return its index.
+			\end{enumerate}
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Initialization and Scanning}
+		\begin{itemize}
+			\item \textbf{Starting Point}: The allocation starts from the variable \texttt{next}, initialized to \texttt{VM\_USERLO\_PI}.
+			\item \textbf{Loop Logic}:
+			\begin{itemize}
+				\item Scan from \texttt{next} to \texttt{VM\_USERHI\_PI}.
+				\item Wrap around to \texttt{VM\_USERLO\_PI} if the end is reached.
+			\end{itemize}
+			\item \textbf{Return Value}: Returns the index of the allocated page or 0 if none are available.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Optimizing with Memoization}
+		\begin{itemize}
+			\item \textbf{Memoization Concept}: Store the last allocated page to avoid scanning the entire AT repeatedly.
+			\item \textbf{Efficiency}: Reduces overhead by starting the scan from the last allocated page.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Overview of \texttt{pfree()}}
+		\begin{itemize}
+			\item \textbf{Purpose}: Free a physical page.
+			\item \textbf{Process}:
+			\begin{itemize}
+				\item Takes an index (\texttt{pfree\_index}) of the page to be freed.
+				\item Calls \texttt{at\_set\_allocated(pfree\_index, 0)} to mark the page as unallocated.
+			\end{itemize}
+		\end{itemize}
+	\end{frame}
+	
+	\section{Conclusion}
+	\begin{frame}
+		\frametitle{Conclusion}
+		\begin{itemize}
+			\item Efficient memory management is crucial for the performance and stability of operating systems.
+			\item Understanding the role of bootloaders and memory allocation techniques is essential.
+			\item Key functions such as \texttt{palloc()} and \texttt{pfree()} play a vital role in managing physical memory.
+			\item Ongoing optimization techniques can enhance memory allocation efficiency and system performance.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Thank You!}
+		\begin{center}
+			\textbf{Thank you for your attention!} \\
+			\vspace{1em}
+		\end{center}
+	\end{frame}
+	
+	
+	
+	
+	
+
+	
+	
+	
+	
+
+	
+\end{document}

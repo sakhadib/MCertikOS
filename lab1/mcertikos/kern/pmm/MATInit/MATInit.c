@@ -17,7 +17,7 @@
  *    Review import.h in the current directory for the list of available
  *    getter and setter functions.
  */
-void pmem_init(unsigned int mbi_addr)
+void pmem_init(unsigned int mbi_addr) 
 {
     unsigned int nps;
 

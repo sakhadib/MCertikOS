@@ -1,4 +1,4 @@
-#include <lib/gcc.h>
+#include <lib/gcc.h> 
 
 // Number of physical pages that are actually available in the machine.
 static unsigned int NUM_PAGES;
